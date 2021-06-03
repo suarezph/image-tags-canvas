@@ -1,11 +1,13 @@
 // db: init storage
-let db = new Localbase('DBCanvas');
+const db = new Localbase('DBCanvas'); // indexDB Name
+const filesInput = document.querySelector("#files"); // file upload element
+
 let images = [];
-let selectedImageIndex = 0;
-let canvas, context;
-let isDrawTagging = false;
-let canvasImage = new Image();
-const filesInput = document.querySelector("#files");
+let selectedImageIndex = 0; // 
+let canvas, context; // canvas and the canvas context
+let isDrawTagging = false; // an indication if drawing in canvas is already started
+let canvasImage = new Image(); // creates a new HTMLImageElement instance
+
 let imageCanvasWidth = 0;
 let imageCanvasHeight = 0;
 let currentKey = null;
@@ -64,7 +66,7 @@ document.addEventListener('DOMContentLoaded', (ev) => {
     if (confirm("Are you sure you want to delete this photo?")) {
       const key = canvas.getAttribute("key");
       db.collection('photos').doc(key).delete().then(function(response) {
-        window.location.reload(true);
+        window.location.reload();
       });
     } 
   });
@@ -85,8 +87,8 @@ function setPhotoByIndex(selectedIndex) {
 
 // Previous functionality
 function previous(images, current) {
-  if(images.length === 1) { return null; }
-  if(current <= 0) { return null;  }
+  if(images.length === 1) { return; }
+  if(current <= 0) { return;  }
 
   current -= 1;
 
@@ -95,8 +97,8 @@ function previous(images, current) {
 
 // Next functionality
 function next(images, current) {
-  if(images.length === 1) { return null; }
-  if(current >= images.length - 1) { return null; }
+  if(images.length === 1) { return; }
+  if(current >= images.length - 1) { return; }
 
   current += 1;
 
