@@ -1,16 +1,20 @@
 // db: init storage
 const db = new Localbase('DBCanvas'); // indexDB Name
-const filesInput = document.querySelector("#files"); // file upload element
+const filesInput = document.querySelector("#files");  // file upload element
+const elementTags = document.querySelector("#tags");  // tags element
+const elementThumbnails = document.querySelector("#thumbnails");  // tags element
 
 let images = [];
-let selectedImageIndex = 0; // 
+let selectedImageIndex = 0; // index image selected to be set in canvas
 let canvas, context; // canvas and the canvas context
 let isDrawTagging = false; // an indication if drawing in canvas is already started
 let canvasImage = new Image(); // creates a new HTMLImageElement instance
 
+let activeTagIndex = 0;
 let imageCanvasWidth = 0;
 let imageCanvasHeight = 0;
 let currentKey = null;
+let isDragging = false;
 
 let store = [];
 let boxes = [];
@@ -156,22 +160,16 @@ filesInput.addEventListener('change', function() {
 
 // Render image to thumbnails
 function renderImageToThumbnails(image, key, index=null) {
-  const div = document.querySelector("#thumbnails");
-  div.innerHTML += `<img src="${image}"  key="${key}" onClick="setPhotoByIndex(${index})"  />`;
+  elementThumbnails.innerHTML += `<img src="${image}"  key="${key}" onClick="setPhotoByIndex(${index})"  />`;
 }
 
 // Render names to tags element
-function renderTagsToTHtml(name, key, index=null, empty=false) {
-  const div = document.querySelector("#tags");
-  if(!empty) {
-    div.innerHTML += `
-      <div key="${key}" class="tag-item"> 
-        <span>${name}</span> 
-        <button onClick="removeTag(${index})" >x</button>
-      </div>`;
-  } else {
-    div.innerHTML = "";
-  }
+function renderTagsToTHtml(name, key, index=null, activeTagIndex=null) {
+  elementTags.innerHTML += `
+    <div key="${key}" class="tag-item ${activeTagIndex === index ? 'active' : ''}"> 
+      <span>${name}</span> 
+      <button onClick="removeTag(${index})" >x</button>
+    </div>`;
 }
 
 

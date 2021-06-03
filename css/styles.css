@@ -86,6 +86,11 @@ body {
   font-size: 14px;
 }
 
+#tags .tag-item.active{
+  background: rgb(145 197 253);
+  font-weight: bold;
+}
+
 #tags button {
   text-align: right;
   background: #efefef;

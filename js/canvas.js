@@ -13,14 +13,30 @@ function TagBox() {
 
 // Methods on the Box class
 TagBox.prototype = {
-	draw: function(context) {
-		context.strokeStyle = "#444444";
+	draw: function(context, fill="#444444") {
+		context.strokeStyle = fill;
     context.strokeRect(this.x,this.y,this.w,this.h);
     context.font = "8pt Arial";
-    context.fillStyle = "#444444";
+    context.fillStyle = fill;
     context.fillText(this.tag, (this.x + this.w) + 5, (this.y + this.h) + 20);
-	}
+	},
+  redraw: function (x, y) {
+      this.x = x || this.x;
+      this.y = y || this.y;
+      this.draw(context);
+      return (this);
+  },
+  isPointInside: function(x, y) {    
+    return (x <= this.x && x >= this.x + this.w && y <= this.y && y >= this.y + this.h);
+  },
+  highlight: function (x, y) {
+      this.x = x || this.x;
+      this.y = y || this.y;
+      this.draw(context, "rgb(67, 155, 249)");
+      return (this);
+  }
 }
+
 
 //Initialize a new Box and add it
 function addTag(x, y, w, h, tag, isNew=true) {
@@ -71,16 +87,31 @@ tagMouseDown = function(e) {
 };
 
 tagMouseMove = function(e){
-	if (isDrawTagging){
-    getMousePosition(e);
+  getMousePosition(e);
 
+  context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
+  context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
+  activeTagIndex = null;
+  renderTagsInHtml(); // @TODO: hotfix - will rerender once mouse is hovering the canvas
+
+  for (var i = 0; i < boxes.length; i++) {
+    if (boxes[i].isPointInside(mx, my)) {
+      activeTagIndex = i;
+      boxes[i].highlight();
+      renderTagsInHtml();
+    } else {
+      boxes[i].redraw();
+    }
+  }
+
+	if (isDrawTagging){
     var x = Math.min(mx, rectX),
       y = Math.min(my, rectY),
       w = Math.abs(mx - rectX),
       h = Math.abs(my - rectY);
 
     mainDraw(x, y, w, h);  // This function draws the box at intermediate steps
-  }
+  }    
 }
 
 tagMouseUp = function(e){
@@ -106,7 +137,6 @@ tagMouseUp = function(e){
       } else {
 				addTag (rectX, rectY, rectW, rectH, tag);
 			}
-
 
       context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
       context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
@@ -149,7 +179,7 @@ function currentPhotoInCanvas (photo, key) {
   // reset 
   boxes = [];
   store = [];
-  renderTagsToTHtml(null, null, 0, true);
+  elementTags.innerHTML = "";
 
   canvasImage.onload = function() {
     let nw = canvasImage.naturalWidth;
@@ -166,7 +196,7 @@ function currentPhotoInCanvas (photo, key) {
         photo.tags.forEach(function(tag, index) {
           addTag(tag.x, tag.y, tag.w, tag.h, tag.tag, false);
           store.push(tag);
-          renderTagsToTHtml(tag.tag, key, index);
+          renderTagsToTHtml(tag.tag, key, index, null);
         });
 
         drawBoxes(boxes);
@@ -183,17 +213,26 @@ function currentPhotoInCanvas (photo, key) {
 }
 
 
+function renderTagsInHtml() {
+  elementTags.innerHTML = "";
+
+  store.forEach(function(tag, index) {
+    renderTagsToTHtml(tag.tag, currentKey, index, activeTagIndex);
+  });
+}
+
+
 function removeTag(index) {
-  renderTagsToTHtml(null, null, 0, true);
+  // remove
   store.splice(index,1);
   boxes.splice(index,1);
 
+  // re-render tags
   db.collection('photos').doc(currentKey).update({ tags: store }).then(function(response) {
-    store.forEach(function(tag, index) {
-      renderTagsToTHtml(tag.tag, currentKey, index);
-    });
+    renderTagsInHtml();
   });
 
+  // draw boxes again and image
   context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
   drawBoxes(boxes);
 }
