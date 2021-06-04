@@ -10,7 +10,8 @@ let canvas, context; // canvas and the canvas context
 let isDrawTagging = false; // an indication if drawing in canvas is already started
 let canvasImage = new Image(); // creates a new HTMLImageElement instance
 
-let activeTagIndex = 0;
+let activeTagIndex = null;
+let activeDragIndex = null;
 let imageCanvasWidth = 0;
 let imageCanvasHeight = 0;
 let currentKey = null;

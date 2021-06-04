@@ -10,21 +10,21 @@
   * 2.3. I worked on next, previous, count and delete functionality
   * 2.4. I worked on canvas drawing, With this guidance and can be found below resources (Canvas #4)
   * 2.5. I worked on listing tags (retrieving data, storing data and clear functionality)
+  * 2.5. I worked on drag functionality
 
 ## Limitations
 1. Localstorage/Sessionstorage can only store the data upto 3-5mb, only string data can be stored, so JSON.parse and JSON.string should be used all through out when using data objects, which I am having trouble saving the dataURL/Base64 image
-2. I did not test the project on Internet Explorer browser
+2. Internet explorer 11 and less it is not working
 
 ## Project Issues (Hotfix)
 1. Responsive for canvas image and tags is not there
-2. Currently my code is quite messy, is not extendable and there are redudant codes.
+2. Currently my code is quite messy, is not extendable and there are redudant codes, I have to clean this one up as sonn as possible.
 2. If I draw beyond the canvas and then I properly put the drawing inside afterwards, I still got an error and won't save.
 3. The upload button css is not compatible in firefox, need to work around.
 
 ## Future Features
 1. Add button to remove all photos/images
 2. Add button to clear all tags
-3. Highlight tags when hovering item in the list or in canvas
 4. When deleting image should not refresh the page
 
 ## Resources

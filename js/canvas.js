@@ -13,7 +13,7 @@ function TagBox() {
 
 // Methods on the Box class
 TagBox.prototype = {
-	draw: function(context, fill="#444444") {
+	draw: function(context, fill="#444444", isFilled=false) {
 		context.strokeStyle = fill;
     context.strokeRect(this.x,this.y,this.w,this.h);
     context.font = "8pt Arial";
@@ -32,11 +32,11 @@ TagBox.prototype = {
   highlight: function (x, y) {
       this.x = x || this.x;
       this.y = y || this.y;
+      context.cursor = "col-resize";
       this.draw(context, "rgb(67, 155, 249)");
       return (this);
   }
 }
-
 
 //Initialize a new Box and add it
 function addTag(x, y, w, h, tag, isNew=true) {
@@ -59,6 +59,25 @@ function addTag(x, y, w, h, tag, isNew=true) {
   }
 }
 
+function updateTag(x, y, w, h, tag) {
+  // will not store if tag is undefined
+  if(w === undefined || h === undefined)
+    return
+
+	var rect = new TagBox;
+	rect.x = x;
+	rect.y = y;
+	rect.w = w;
+	rect.h = h;
+	rect.tag = tag;
+
+	boxes[activeDragIndex] = rect;	
+  store[activeDragIndex] = {"x": x,"y": y,"w": w, "h": h, "tag":tag};
+  db.collection('photos').doc(currentKey).update({ tags: store });
+
+  activeDragIndex = null;
+}
+
 function getMousePosition(e){
 	var element = canvas;
 	offsetX = 0;
@@ -77,10 +96,30 @@ function getMousePosition(e){
 	my = e.pageY - offsetY
 }
 
+function getDragPosition(x, y, w, h, tag) {
+  xDrag = x;
+  yDrag = y;
+  wDrag = w;
+  hDrag = h;
+  tagDrag = tag;
+}
+
 tagMouseDown = function(e) {
 	getMousePosition(e);
+  activeDragIndex = null;
 
-	isDrawTagging = true;
+  if(boxes.length > 0) {
+    for (var i = 0; i < boxes.length; i++) {
+      if (boxes[i].isPointInside(mx, my)) {
+        isDrawTagging = false;
+        isDragging = true;
+        activeDragIndex = i;
+        return
+      }
+    }
+  }
+
+  isDrawTagging = true;
 
 	rectX = mx;
 	rectY = my;
@@ -89,29 +128,45 @@ tagMouseDown = function(e) {
 tagMouseMove = function(e){
   getMousePosition(e);
 
-  context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
-  context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
-  activeTagIndex = null;
-  renderTagsInHtml(); // @TODO: hotfix - will rerender once mouse is hovering the canvas
+  if(!isDragging) {
+    // Highlight tag shape and list
+    if(boxes.length > 0) {
+      context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
+      context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
+      activeTagIndex = null;
+      renderTagsInHtml(); // @TODO: hotfix - will rerender once mouse is hovering the canvas
 
-  for (var i = 0; i < boxes.length; i++) {
-    if (boxes[i].isPointInside(mx, my)) {
-      activeTagIndex = i;
-      boxes[i].highlight();
-      renderTagsInHtml();
-    } else {
-      boxes[i].redraw();
+      for (var i = 0; i < boxes.length; i++) {
+        if (boxes[i].isPointInside(mx, my)) {
+          activeTagIndex = i;
+          boxes[i].highlight();
+          renderTagsInHtml();
+        } else {
+          boxes[i].redraw();
+        }
+      }
     }
   }
 
 	if (isDrawTagging){
-    var x = Math.min(mx, rectX),
+    let x = Math.min(mx, rectX),
       y = Math.min(my, rectY),
       w = Math.abs(mx - rectX),
       h = Math.abs(my - rectY);
 
-    mainDraw(x, y, w, h);  // This function draws the box at intermediate steps
-  }    
+    tagDraw(x, y, w, h);  // This function draws the box at intermediate steps
+  }
+
+  if(isDragging) {
+      let xDrag = mx,
+        yDrag = my,
+        wDrag = boxes[activeDragIndex].w,
+        hDrag = boxes[activeDragIndex].h;
+    
+    getDragPosition(xDrag, yDrag, wDrag, hDrag, boxes[activeDragIndex].tag);
+    dragDraw(xDrag, yDrag, wDrag, hDrag, boxes[activeDragIndex].tag); 
+   
+  }
 }
 
 tagMouseUp = function(e){
@@ -144,9 +199,23 @@ tagMouseUp = function(e){
 
       isDrawTagging = false;
   }
+
+  if(isDragging) {
+    var isDragConfirm = confirm("Are you sure you want to move the tag to this locaiton?");
+    if(isDragConfirm) {
+      updateTag (xDrag, yDrag, wDrag, hDrag, tagDrag);
+    }
+
+    context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
+    context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
+    drawBoxes(boxes);
+
+    isDragging = false;
+  }
  }
 
-function mainDraw(x, y, w, h) {
+
+function tagDraw(x, y, w, h) {
 
 	context.clearRect(0, 0, canvas.width, canvas.height);
 	context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
@@ -161,6 +230,27 @@ function mainDraw(x, y, w, h) {
   context.lineWidth = 1;
   context.strokeStyle = "rgb(67, 155, 249)";
   context.strokeRect(x, y, w, h);
+}
+
+
+function dragDraw(x, y, w, h, tag) {
+
+	context.clearRect(0, 0, canvas.width, canvas.height);
+	context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
+  drawBoxes(boxes);
+
+	if (!w || !h){
+		return;
+	}
+
+  context.fillStyle = "rgb(238, 245, 42, 0.3)";
+  context.fillRect(x, y, w, h);
+  context.lineWidth = 1;
+  context.strokeStyle = "rgb(238, 245, 42)";
+  context.strokeRect(x, y, w, h);
+  context.font = "8pt Arial";
+  context.fillStyle = "black";
+  context.fillText(tag, (x + w) + 5, (y + h) + 20);
 }
 
 function drawBoxes(tags) {
@@ -219,6 +309,10 @@ function renderTagsInHtml() {
   store.forEach(function(tag, index) {
     renderTagsToTHtml(tag.tag, currentKey, index, activeTagIndex);
   });
+
+  if(activeTagIndex !== null) {
+    elementTags.innerHTML += "<div class='infoTag'><b>Tips:</b> Select and hold the mouse key inside the tag shape and drag it to new location.</div>"
+  }
 }
 
 

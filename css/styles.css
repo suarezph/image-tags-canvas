@@ -105,6 +105,11 @@ body {
   background: #fff;
 }
 
+#tags .infoTag {
+  font-size: 14px;
+  padding-top:10px;
+}
+
 
 /*
 * Button options
