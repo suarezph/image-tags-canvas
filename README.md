@@ -18,7 +18,7 @@
 
 ## Project Issues (Hotfix)
 1. Responsive for canvas image and tags is not there
-2. Currently my code is quite messy, is not extendable and there are redudant codes, I have to clean this one up as sonn as possible.
+2. Currently my code is quite messy, is not extendable and there are redudant codes, I have to clean this one up as soon as possible.
 2. If I draw beyond the canvas and then I properly put the drawing inside afterwards, I still got an error and won't save.
 3. The upload button css is not compatible in firefox, need to work around.
 
