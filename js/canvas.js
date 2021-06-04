@@ -114,6 +114,8 @@ tagMouseDown = function(e) {
         isDrawTagging = false;
         isDragging = true;
         activeDragIndex = i;
+        rectX = mx;
+	      rectY = my;
         return
       }
     }
@@ -121,7 +123,7 @@ tagMouseDown = function(e) {
 
   isDrawTagging = true;
 
-	rectX = mx;
+  rectX = mx;
 	rectY = my;
 };
 
@@ -158,14 +160,24 @@ tagMouseMove = function(e){
   }
 
   if(isDragging) {
-      let xDrag = mx,
-        yDrag = my,
+    let xDrag =boxes[activeDragIndex].x,
+        yDrag =boxes[activeDragIndex].y,
         wDrag = boxes[activeDragIndex].w,
         hDrag = boxes[activeDragIndex].h;
+
+    // calculate the distance the mouse has moved
+    // since the last mousemove
+    let dx = mx-rectX;
+    let dy = my-rectY;
+
+    // move each rect that isDragging 
+    // by the distance the mouse has moved
+    // since the last mousemove
+    xDrag += dx;
+    yDrag += dy;
     
     getDragPosition(xDrag, yDrag, wDrag, hDrag, boxes[activeDragIndex].tag);
     dragDraw(xDrag, yDrag, wDrag, hDrag, boxes[activeDragIndex].tag); 
-   
   }
 }
 
