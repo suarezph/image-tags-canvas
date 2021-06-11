@@ -1,0 +1,22 @@
+{
+  "name": "secretlab-exercise",
+  "version": "1.0.0",
+  "description": "secretlab exam",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aaesis/secretlab-exercise.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/aaesis/secretlab-exercise/issues"
+  },
+  "homepage": "https://github.com/aaesis/secretlab-exercise#readme",
+  "devDependencies": {
+    "jest": "^27.0.4"
+  }
+}
