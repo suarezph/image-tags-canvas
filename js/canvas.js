@@ -136,7 +136,7 @@ tagMouseMove = function(e){
       context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
       context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
       activeTagIndex = null;
-      renderTagsInHtml(); // @TODO: hotfix - will rerender once mouse is hovering the canvas
+      renderTagsInHtml(); // @TODO: revisit code, problem: will rerender once mouse is hovering the canvas
 
       for (var i = 0; i < boxes.length; i++) {
         if (boxes[i].isPointInside(mx, my)) {
