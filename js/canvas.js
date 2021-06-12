@@ -337,7 +337,7 @@ function removeTag(index) {
     renderTagsInHtml();
   });
 
-  // draw boxes again and image
+  // draw boxes and image again
   context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
   drawBoxes(boxes);
 }

@@ -20,6 +20,8 @@ filesInput.addEventListener('change', function() {
       db.collection('photos').add(result).then(function(response) {
         const data = JSON.parse(response.match("{(.*)}")[0]);
 
+        // always set the photo to current selected,
+        // if not, it will set to a new uploaded photo
         if(images.length == 0){
           currentPhotoInCanvas(data.data.file, data.key);
           showButtons();
