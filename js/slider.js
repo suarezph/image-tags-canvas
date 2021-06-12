@@ -3,29 +3,23 @@ document.addEventListener('DOMContentLoaded', function(ev){
   document.querySelector(".preloader").style.display = "none";
   document.querySelector(".pages").style.display = "block";
 
-  // Next photo
+  // get next photo
   document.querySelector(".next").addEventListener("click", function() {
     const current = next(images, selectedImageIndex);
 
-    if(current !== null) {
-      setIndex(current);
-      currentPhotoInCanvas(images[current].data.file, images[current].key);
-      countItems(images, current);
-    }
+    if(current !== null) 
+      updateCanvasDataAndIndex(current)
   });
 
-  // Previous photo
+  // get previous photo
   document.querySelector(".prev").addEventListener("click", function() {
     const current = previous(images, selectedImageIndex);
     
-    if(current !== null) {
-      setIndex(current);
-      currentPhotoInCanvas(images[current].data.file, images[current].key);
-      countItems(images, current);
-    }
+    if(current !== null) 
+      updateCanvasDataAndIndex(current)
   });
 
-  // Delete photo
+  // delete photo
   document.querySelector(".delete").addEventListener("click", function() {
     if (confirm("Are you sure you want to delete this photo?")) {
       const key = canvas.getAttribute("key");
@@ -37,19 +31,15 @@ document.addEventListener('DOMContentLoaded', function(ev){
   });
 });
 
-// Update selectedImageIndex
-function setIndex(index) {
-  selectedImageIndex = index;
-}
 
-// Set thumbnail photo in Canvas
-function setPhotoByIndex(selectedIndex) {
+// update html(canvas in photo, index and x of total) when pressing next, previous
+const updateCanvasDataAndIndex = (selectedIndex) => {
+  selectedImageIndex = selectedIndex;
   currentPhotoInCanvas(images[selectedIndex].data.file, images[selectedIndex].key);
-  countItems(images, selectedIndex);
-  setIndex(selectedIndex);
+  renderFromTo(images.length, selectedIndex);
 }
 
-// Previous functionality
+// previous function
 const previous =  (images, current) => {
   if(images.length === 1 || current <= 0) 
     return current; 
@@ -57,7 +47,7 @@ const previous =  (images, current) => {
   return current -= 1;
 }
 
-// Next functionality
+// next function
 const next = (images, current) =>  {
   if(images.length === 1 || current >= images.length - 1) 
     return current; 
@@ -65,16 +55,10 @@ const next = (images, current) =>  {
   return  current += 1;
 }
 
-// Count functionality
-function countItems(images, index) {
-  // set total and current selected
-  document.querySelector(".current").innerHTML = index + 1;
-  document.querySelector(".total").innerHTML = images.length;
-}
-
-// Show/Hide buttons
-function showButtons() {
-  document.querySelector(".button-options").style.display = "flex";
+// (current of total) function
+const renderFromTo = (total, current_photo, ) => {
+  document.querySelector(".current").innerHTML = current_photo + 1;
+  document.querySelector(".total").innerHTML = total;
 }
 
 module.exports = {

@@ -3,6 +3,7 @@ canvas.addEventListener('mousedown', e => tagMouseDown(e));
 canvas.addEventListener('mouseup', e => tagMouseUp(e));
 canvas.addEventListener('mousemove', e => tagMouseMove(e));
 
+// initialise parameters to use for drawing
 function TagBox() {
 	this.x = 0;
 	this.y = 0;
@@ -314,7 +315,6 @@ function currentPhotoInCanvas (photo, key) {
   canvas.setAttribute("key", key);
 }
 
-
 function renderTagsInHtml() {
   elementTags.innerHTML = "";
 
@@ -326,7 +326,6 @@ function renderTagsInHtml() {
     elementTags.innerHTML += "<div class='infoTag'><b>Tips:</b> Select and hold the mouse key inside the tag shape and drag it to new location.</div>"
   }
 }
-
 
 function removeTag(index) {
   // remove
@@ -342,6 +341,7 @@ function removeTag(index) {
   context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
   drawBoxes(boxes);
 }
+
 
 
 

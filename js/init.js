@@ -3,7 +3,7 @@ const filesInput = document.querySelector("#files");  // element name for file u
 const elementTags = document.querySelector("#tags");  // element name for list of tags
 const elementThumbnails = document.querySelector("#thumbnails");  // element name for list of photos
 
-let images = []; // local state of images
+let images = []; // local state of images (store images temporarily)
 let selectedImageIndex = 0; // local state for selected images (get image index)
 let currentKey = null; // get the key ID of the image (set by indexDB.: For delete image functionality.
 
@@ -20,11 +20,22 @@ const context = canvas.getContext("2d"); // set canvas context into variable
 let imageCanvasWidth = 0; // set initial width to 0 for canvas image
 let imageCanvasHeight = 0; // set initial height to 0 for canvas image
 
-//  @TODO: Implement IIFE(Immediately Invoked Function Expression) and "use strict"; so all the initialise variable willl be turn local and will not be available globally
-// (function () {
-//   "use strict";
-//   ... code ....
-// }());
+
+// fetch all the data from indexDB (browser refresh and first load)
+db.collection('photos').get({ keys: true }).then(items => {
+  if(items.length > 0) {
+    items.map((item, index) => {
+      images.push({ 
+        key: item.key, 
+        data: item.data 
+      });
+      renderImageToThumbnails(item.data.file, item.key, index);
+    });
+
+    updateCanvasDataAndIndex(selectedImageIndex);
+    showButtons();
+  }
+});
 
 
 

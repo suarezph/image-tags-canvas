@@ -27,7 +27,7 @@ filesInput.addEventListener('change', function() {
 
         images.push(data);
         renderImageToThumbnails(data.data.file, data.key, images.length - 1);
-        countItems(images, selectedImageIndex);
+        renderFromTo(images.length, selectedImageIndex);
       });
     });
 
@@ -35,33 +35,22 @@ filesInput.addEventListener('change', function() {
   }
 }); 
 
-db.collection('photos').get({ keys: true }).then(items => {
-  if(items.length > 0) {
-    items.map((item, index) => {
-      images.push({ 
-        key: item.key, 
-        data: item.data 
-      });
-      renderImageToThumbnails(item.data.file, item.key, index);
-    });
+// set thumbnail photo in Canvas
+const setPhotoByIndex = (selectedIndex) => updateCanvasDataAndIndex(selectedIndex);
 
-    currentPhotoInCanvas(images[selectedImageIndex].data.file, images[selectedImageIndex].key);
-    countItems(images, selectedImageIndex);
-    showButtons();
-  }
-});
-
+// Show/Hide buttons
+const showButtons = () => document.querySelector(".button-options").style.display = "flex";
 
 // Render image to thumbnails
-function renderImageToThumbnails(image, key, index=null) {
-  elementThumbnails.innerHTML += `<img src="${image}"  key="${key}" onClick="setPhotoByIndex(${index})"  />`;
-}
+const renderImageToThumbnails = (image, key, index=null)  => elementThumbnails.innerHTML += `<img src="${image}"  key="${key}" onClick="setPhotoByIndex(${index})"  />`;
 
 // Render names to tags element
-function renderTagsToTHtml(name, key, index=null, activeTagIndex=null) {
-  elementTags.innerHTML += `
+const renderTagsToTHtml = (name, key, index=null, activeTagIndex=null) => {
+  return elementTags.innerHTML += `
     <div key="${key}" class="tag-item ${activeTagIndex === index ? 'active' : ''}"> 
       <span>${name}</span> 
       <button onClick="removeTag(${index})" >x</button>
     </div>`;
 }
+
+
