@@ -55,6 +55,4 @@ const renderTagsToTHtml = (name, key, index=null, activeTagIndex=null) => {
     </div>`;
 }
 
-// testing on github PR
-
 
