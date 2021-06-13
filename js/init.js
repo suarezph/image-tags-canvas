@@ -1,28 +1,26 @@
-// db: init storage
 const db = new Localbase('DBCanvas'); // indexDB Name
-const filesInput = document.querySelector("#files");  // file upload element
-const elementTags = document.querySelector("#tags");  // tags element
-const elementThumbnails = document.querySelector("#thumbnails");  // tags element
+const filesInput = document.querySelector("#files");  // element name for file upload
+const elementTags = document.querySelector("#tags");  // element name for list of tags
+const elementThumbnails = document.querySelector("#thumbnails");  // element name for list of photos
 
-let images = [];
-let selectedImageIndex = 0; // index image selected to be set in canvas
-let canvas, context; // canvas and the canvas context
-let isDrawTagging = false; // an indication if drawing in canvas is already started
-let canvasImage = new Image(); // creates a new HTMLImageElement instance
+let images = []; // local state of images (store images temporarily)
+let selectedImageIndex = 0; // local state for selected images (get image index)
+let currentKey = null; // get the key ID of the image (set by indexDB.: For delete image functionality.
 
-let activeTagIndex = null;
-let activeDragIndex = null;
-let imageCanvasWidth = 0;
-let imageCanvasHeight = 0;
-let currentKey = null;
-let isDragging = false;
+let canvasImage = new Image(); // creates a new HTMLImageElement instance and will be set to canvas
+let isDrawTagging = false; // set condition if drawing in canvas is already started
+let activeTagIndex = null; // it is where when you hover the tag drawing in canvas, it will highlight the tag name. (set the tag index)
+let activeDragIndex = null;  // it is where when you do the dragging, needs to get temporarily the tag index . (set the drag index)
+let isDragging = false; // set condition if dragging in canvas is already started
+let store = []; // local state: store tags drawing temporarily for saving and deleting in indexDB
+let boxes = []; // local state: same with store but already initialise with new Boxes ready to render in canvas. 
 
-let store = [];
-let boxes = [];
+const canvas = document.querySelector("#canvas"); // element name for canvas area
+const context = canvas.getContext("2d"); // set canvas context into variable
+let imageCanvasWidth = 0; // set initial width to 0 for canvas image
+let imageCanvasHeight = 0; // set initial height to 0 for canvas image
 
-canvas = document.querySelector("#canvas");
-context = canvas.getContext("2d");
-
+// fetch all the data from indexDB (browser refresh and first load)
 db.collection('photos').get({ keys: true }).then(items => {
   if(items.length > 0) {
     items.map((item, index) => {
@@ -33,145 +31,10 @@ db.collection('photos').get({ keys: true }).then(items => {
       renderImageToThumbnails(item.data.file, item.key, index);
     });
 
-    currentPhotoInCanvas(images[selectedImageIndex].data.file, images[selectedImageIndex].key);
-    countItems(images, selectedImageIndex);
+    updateCanvasDataAndIndex(selectedImageIndex);
     showButtons();
   }
 });
-
-document.addEventListener('DOMContentLoaded', (ev) => {
-  // Preloader
-  document.querySelector(".preloader").style.display = "none";
-  document.querySelector(".pages").style.display = "block";
-
-  // Next photo
-  document.querySelector(".next").addEventListener("click", function() {
-    const current = next(images, selectedImageIndex);
-
-    if(current !== null) {
-      setIndex(current);
-      currentPhotoInCanvas(images[current].data.file, images[current].key);
-      countItems(images, current);
-    }
-  });
-
-  // Previous photo
-  document.querySelector(".prev").addEventListener("click", function() {
-    const current = previous(images, selectedImageIndex);
-
-    if(current !== null) {
-      setIndex(current);
-      currentPhotoInCanvas(images[current].data.file, images[current].key);
-      countItems(images, current);
-    }
-  });
-
-  // Delete photo
-  document.querySelector(".delete").addEventListener("click", function() {
-    if (confirm("Are you sure you want to delete this photo?")) {
-      const key = canvas.getAttribute("key");
-      db.collection('photos').doc(key).delete().then(function(response) {
-        window.location.reload();
-      });
-    } 
-  });
-});
-
-
-// Update selectedImageIndex
-function setIndex(index) {
-  selectedImageIndex = index;
-}
-
-// Set thumbnail photo in Canvas
-function setPhotoByIndex(selectedIndex) {
-  currentPhotoInCanvas(images[selectedIndex].data.file, images[selectedIndex].key);
-  countItems(images, selectedIndex);
-  setIndex(selectedIndex);
-}
-
-// Previous functionality
-function previous(images, current) {
-  if(images.length === 1) { return; }
-  if(current <= 0) { return;  }
-
-  current -= 1;
-
-  return current;
-}
-
-// Next functionality
-function next(images, current) {
-  if(images.length === 1) { return; }
-  if(current >= images.length - 1) { return; }
-
-  current += 1;
-
-  return current;
-}
-
-// Count functionality
-function countItems(images, index) {
-  // set total and current selected
-  document.querySelector(".current").innerHTML = index + 1;
-  document.querySelector(".total").innerHTML = images.length;
-}
-
-// Show/Hide buttons
-function showButtons() {
-  document.querySelector(".button-options").style.display = "flex";
-}
-
-// File uploads
-filesInput.addEventListener('change', function() {
-  const files = this.files;
-
-  for(var i = 0; i< files.length; i++){
-    let file = files[i];
-
-    // only accepts images
-    if(!file.type.match('image'))
-        continue;
-
-    let reader = new FileReader();
-
-    reader.addEventListener("load", function() {
-      const result = {
-        "file": reader.result,
-        "tags": null
-      };
-
-      db.collection('photos').add(result).then(function(response) {
-        const data = JSON.parse(response.match("{(.*)}")[0]);
-
-        if(images.length == 0){
-          currentPhotoInCanvas(data.data.file, data.key);
-          showButtons();
-        }
-
-        images.push(data);
-        renderImageToThumbnails(data.data.file, data.key, images.length - 1);
-        countItems(images, selectedImageIndex);
-      });
-    });
-
-    reader.readAsDataURL(file);
-  }
-}); 
-
-// Render image to thumbnails
-function renderImageToThumbnails(image, key, index=null) {
-  elementThumbnails.innerHTML += `<img src="${image}"  key="${key}" onClick="setPhotoByIndex(${index})"  />`;
-}
-
-// Render names to tags element
-function renderTagsToTHtml(name, key, index=null, activeTagIndex=null) {
-  elementTags.innerHTML += `
-    <div key="${key}" class="tag-item ${activeTagIndex === index ? 'active' : ''}"> 
-      <span>${name}</span> 
-      <button onClick="removeTag(${index})" >x</button>
-    </div>`;
-}
 
 
 

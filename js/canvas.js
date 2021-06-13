@@ -3,6 +3,7 @@ canvas.addEventListener('mousedown', e => tagMouseDown(e));
 canvas.addEventListener('mouseup', e => tagMouseUp(e));
 canvas.addEventListener('mousemove', e => tagMouseMove(e));
 
+// initialise parameters to use for drawing
 function TagBox() {
 	this.x = 0;
 	this.y = 0;
@@ -136,7 +137,7 @@ tagMouseMove = function(e){
       context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
       context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
       activeTagIndex = null;
-      renderTagsInHtml(); // @TODO: hotfix - will rerender once mouse is hovering the canvas
+      renderTagsInHtml(); // @TODO: revisit code, problem: will rerender once mouse is hovering the canvas
 
       for (var i = 0; i < boxes.length; i++) {
         if (boxes[i].isPointInside(mx, my)) {
@@ -314,7 +315,6 @@ function currentPhotoInCanvas (photo, key) {
   canvas.setAttribute("key", key);
 }
 
-
 function renderTagsInHtml() {
   elementTags.innerHTML = "";
 
@@ -327,7 +327,6 @@ function renderTagsInHtml() {
   }
 }
 
-
 function removeTag(index) {
   // remove
   store.splice(index,1);
@@ -338,10 +337,11 @@ function removeTag(index) {
     renderTagsInHtml();
   });
 
-  // draw boxes again and image
+  // draw boxes and image again
   context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
   drawBoxes(boxes);
 }
+
 
 
 
