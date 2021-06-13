@@ -20,7 +20,6 @@ const context = canvas.getContext("2d"); // set canvas context into variable
 let imageCanvasWidth = 0; // set initial width to 0 for canvas image
 let imageCanvasHeight = 0; // set initial height to 0 for canvas image
 
-
 // fetch all the data from indexDB (browser refresh and first load)
 db.collection('photos').get({ keys: true }).then(items => {
   if(items.length > 0) {

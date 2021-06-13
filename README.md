@@ -40,7 +40,10 @@
 3. https://www.youtube.com/watch?v=gm1QtePAYTM
 4. https://sapandiwakar.in/using-html5-canvas-element-to-create-cool-tagging-interface/
 
-### TODO
+### Test Framework
+1. https://jestjs.io/
+
+# TODO
 1. Implement IIFE(Immediately Invoked Function Expression) and "use strict"; so all the initialise variable willl be turn local and will not be available globally
   ```(function () {
    "use strict";
