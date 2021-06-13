@@ -11,5 +11,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Install node modules
+      run: npm install
     - name: Run Test
-    - run: npm test
+      run: npm test
