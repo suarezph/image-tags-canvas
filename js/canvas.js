@@ -50,8 +50,6 @@ TagBox.prototype = {
     return (x <= this.x && x >= this.x + this.w && y <= this.y && y >= this.y + this.h);
   },
   highlight: function (x, y) {
-      this.x = x || this.x;
-      this.y = y || this.y;
       this.draw(context, "rgb(67, 155, 249)");
       return (this);
   }
