@@ -1,3 +1,4 @@
+/** @global */
 const db = new Localbase('DBCanvas'); // indexDB Name
 const filesInput = document.querySelector("#files");  // element name for file upload
 const elementTags = document.querySelector("#tags");  // element name for list of tags
@@ -20,7 +21,12 @@ const context = canvas.getContext("2d"); // set canvas context into variable
 let imageCanvasWidth = 0; // set initial width to 0 for canvas image
 let imageCanvasHeight = 0; // set initial height to 0 for canvas image
 
-// fetch all the data from indexDB (browser refresh and first load)
+/**
+ * Fetch the data from the indexDB.
+ *
+ * @function fetchData
+ * @return a bunch of renders (renderImageToThumbnails, updateCanvasDataAndIndex & showButtons)
+ */
 db.collection('photos').get({ keys: true }).then(items => {
   if(items.length > 0) {
     items.map((item, index) => {

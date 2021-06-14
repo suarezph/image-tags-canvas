@@ -1,9 +1,21 @@
-// Desktop mouseup, down and mousemove
+/**
+ * Mouse events for creating rectangles in canvas
+ * 
+ * @mousedown
+ * @mouseup
+ * @mousemove
+ */
 canvas.addEventListener('mousedown', e => tagMouseDown(e));
 canvas.addEventListener('mouseup', e => tagMouseUp(e));
 canvas.addEventListener('mousemove', e => tagMouseMove(e));
 
-// initialise parameters to use for drawing
+/**
+ * Initialise variable to create rectangles
+ *
+ * @class TagBox
+ * @param none
+ * @return mouse x and y, width and height + tag name
+ */
 function TagBox() {
 	this.x = 0;
 	this.y = 0;
@@ -12,7 +24,14 @@ function TagBox() {
 	this.tag = "";
 }
 
-// Methods on the Box class
+/**
+ * Methods under class TagBox
+ *
+ * @function draw: draw rectangle
+ * @function redraw: redraw rectangle with new x,y coordinates
+ * @function isPointInside: check if mouse pointer is inside the rectangle
+ * @function highlight: highlight when mouse pointer is inside the rectangle
+ */
 TagBox.prototype = {
 	draw: function(context, fill="#444444") {
 		context.strokeStyle = fill;
@@ -38,9 +57,20 @@ TagBox.prototype = {
   }
 }
 
-//Initialize a new Box and add it
+/**
+ * By calling this function it will create a rectangle
+ * 
+ * @function addTag
+ * @param {float} x - mouse x coordinate
+ * @param {float} y - mouse y coordinate
+ * @param {float} w - The author of the book.
+ * @param {float} h - The author of the book.
+ * @param {string} tag - The author of the book.
+ * @param {bool} isNew - The author of the book.
+ * @returns 
+ * 
+ */
 function addTag(x, y, w, h, tag, isNew=true) {
-  // will not store if tag is undefined
   if(w === undefined || h === undefined)
     return
 
@@ -53,14 +83,31 @@ function addTag(x, y, w, h, tag, isNew=true) {
 	boxes.push(rect);	
   
   if(isNew) {
+    /**
+     * Update store array
+     * Render the new item to tag element
+     * Update row item with new created tags
+     */
     store.push({"x": x,"y": y,"w": w, "h": h, "tag":tag});
     renderTagListItem(tag, currentKey, store.length - 1);
     db.collection('photos').doc(currentKey).update({ tags: store });
   }
 }
 
+
+/**
+ * By calling this function it will update the coordinates of the rectangle when dragging,
+ * 
+ * @function updateTag
+ * @param {float} x - mouse x coordinate
+ * @param {float} y - mouse y coordinate
+ * @param {float} w - rectangle width
+ * @param {float} h - rectangle height
+ * @param {string} tag - name of the tag
+ * @param {bool} isNew - if created tag is new or not
+ * @returns 
+ */
 function updateTag(x, y, w, h, tag) {
-  // will not store if tag is undefined
   if(w === undefined || h === undefined)
     return
 
@@ -71,6 +118,11 @@ function updateTag(x, y, w, h, tag) {
 	rect.h = h;
 	rect.tag = tag;
 
+  /**
+   * 
+   * Update store array with new data and update indexDB
+   * Set activeDragIndex to null after updates
+   */
 	boxes[activeDragIndex] = rect;	
   store[activeDragIndex] = {"x": x,"y": y,"w": w, "h": h, "tag":tag};
   db.collection('photos').doc(currentKey).update({ tags: store });
@@ -78,6 +130,13 @@ function updateTag(x, y, w, h, tag) {
   activeDragIndex = null;
 }
 
+/**
+ * Get mouse x and y position
+ * 
+ * @function getMousePosition
+ * @param {element} - dom
+ * @returns 
+ */
 function getMousePosition(e){
 	var element = canvas;
 	offsetX = 0;
@@ -96,6 +155,17 @@ function getMousePosition(e){
 	my = e.pageY - offsetY
 }
 
+/**
+ * Get rectangle data when dragging starts
+ * 
+ * @function getDragPosition
+ * @param {float} x - mouse x coordinate
+ * @param {float} y - mouse y coordinate
+ * @param {float} w - rectangle width
+ * @param {float} h - rectangle height
+ * @param {string} tag - name of the tag
+ * @returns 
+ */
 function getDragPosition(x, y, w, h, tag) {
   xDrag = x;
   yDrag = y;
@@ -104,9 +174,31 @@ function getDragPosition(x, y, w, h, tag) {
   tagDrag = tag;
 }
 
+/** @global */
+let rectX = 0;
+let rectY = 0;
+
+/**
+ * Draw and Dragging start here
+ * 
+ * @function tagMouseDown
+ * @param {element} - dom
+ * @returns 
+ * 
+ * check mouse pointer:
+ * 1. if mouse pointer is inside the box it will be a dragging condition
+ * 2. if mouse pointer is outside the box it will be a new tag
+ * 
+ * extra:
+ * 1. get mouse x and y position, and assigned it to rectX and rectY to store data temporarily
+ * 2. activeDragIndex set to null if mousedown starts
+ */
 tagMouseDown = function(e) {
 	getMousePosition(e);
+  
   activeDragIndex = null;
+  rectX = mx;
+  rectY = my;
 
   if(boxes.length > 0) {
     for (var i = 0; i < boxes.length; i++) {
@@ -114,18 +206,15 @@ tagMouseDown = function(e) {
         isDrawTagging = false;
         isDragging = true;
         activeDragIndex = i;
-        rectX = mx;
-	      rectY = my;
         return
       }
     }
   }
 
   isDrawTagging = true;
-
-  rectX = mx;
-	rectY = my;
 };
+
+
 
 tagMouseMove = function(e){
   getMousePosition(e);
