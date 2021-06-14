@@ -215,7 +215,16 @@ tagMouseDown = function(e) {
 };
 
 
-
+/**
+ * Mouse move in canvas
+ * 
+ * @function tagMouseMove
+ * @param {element} - dom
+ * @returns 
+ * 
+ * check mouse moving:
+ * 1. 
+ */
 tagMouseMove = function(e){
   getMousePosition(e);
 
@@ -295,8 +304,7 @@ tagMouseUp = function(e){
 			}
 
       
-      context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
-      drawBoxes(boxes);
+      renderElementsInCanvas();
 
       isDrawTagging = false;
   }
@@ -306,24 +314,19 @@ tagMouseUp = function(e){
     if(isDragConfirm) {
       updateTag (xDrag, yDrag, wDrag, hDrag, tagDrag);
     }
-
     
-    context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
-    drawBoxes(boxes);
+    renderElementsInCanvas();
 
     isDragging = false;
   }
  }
 
 function tagDraw(x, y, w, h) {
-
-	
-	context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
-  drawBoxes(boxes);
-
-	if (!w || !h){
+  if (!w || !h){
 		return;
 	}
+
+  renderElementsInCanvas();
 
   context.fillStyle = "rgb(67, 155, 249, 0.3)";
   context.fillRect(x, y, w, h);
@@ -334,14 +337,11 @@ function tagDraw(x, y, w, h) {
 
 
 function dragDraw(x, y, w, h, tag) {
-
-	
-	context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
-  drawBoxes(boxes);
-
 	if (!w || !h){
 		return;
 	}
+
+  renderElementsInCanvas();
 
   context.fillStyle = "rgb(238, 245, 42, 0.3)";
   context.fillRect(x, y, w, h);
@@ -435,10 +435,13 @@ function removeTag(index) {
   });
 
   // draw boxes and image again
+  renderElementsInCanvas();
+}
+
+function renderElementsInCanvas() {
   context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
   drawBoxes(boxes);
 }
-
 
 
 
