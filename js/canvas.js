@@ -63,10 +63,10 @@ TagBox.prototype = {
  * @function addTag
  * @param {float} x - mouse x coordinate
  * @param {float} y - mouse y coordinate
- * @param {float} w - The author of the book.
- * @param {float} h - The author of the book.
- * @param {string} tag - The author of the book.
- * @param {bool} isNew - The author of the book.
+ * @param {float} w - rectangle width
+ * @param {float} h - rectangle height
+ * @param {string} tag - name of the tag
+ * @param {bool} isNew - if created tag is new or not
  * @returns 
  * 
  */
@@ -104,7 +104,6 @@ function addTag(x, y, w, h, tag, isNew=true) {
  * @param {float} w - rectangle width
  * @param {float} h - rectangle height
  * @param {string} tag - name of the tag
- * @param {bool} isNew - if created tag is new or not
  * @returns 
  */
 function updateTag(x, y, w, h, tag) {
@@ -223,15 +222,15 @@ tagMouseDown = function(e) {
  * @returns 
  * 
  * check mouse moving:
- * 1. 
+ * 1. isDragging
+ * 2. isDrawing
+ * 3. Highlight tags
  */
 tagMouseMove = function(e){
   getMousePosition(e);
 
   if(!isDragging) {
-    // Highlight tag shape and list
     if(boxes.length > 0) {
-      
       context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
       activeTagIndex = null;
       renderTaglist(); // @TODO: revisit code, problem: will rerender once mouse is hovering the canvas
@@ -254,7 +253,10 @@ tagMouseMove = function(e){
       w = Math.abs(mx - rectX),
       h = Math.abs(my - rectY);
 
-    tagDraw(x, y, w, h);  // This function draws the box at intermediate steps
+    /**
+     * This function draws the box at intermediate steps
+     */
+    tagDraw(x, y, w, h);
   }
 
   if(isDragging) {
@@ -263,14 +265,17 @@ tagMouseMove = function(e){
         wDrag = boxes[activeDragIndex].w,
         hDrag = boxes[activeDragIndex].h;
 
-    // calculate the distance the mouse has moved
-    // since the last mousemove
+    /**
+     * Calculate the distance the mouse has moved, since the last mousemove
+     */
     let dx = mx-rectX;
     let dy = my-rectY;
 
-    // move each rect that isDragging 
-    // by the distance the mouse has moved
-    // since the last mousemove
+    /**
+     * move each rect that isDragging 
+     * by the distance the mouse has moved
+     * since the last mousemove
+     */
     xDrag += dx;
     yDrag += dy;
     
@@ -279,6 +284,18 @@ tagMouseMove = function(e){
   }
 }
 
+/**
+ * Mouse up in canvas
+ * 
+ * @function tagMouseUp
+ * @param {element} - dom
+ * @returns 
+ * 
+ * check mouse end if creating 
+ * 1. create rectangle 
+ * 2. create tag
+ * 2. move rectangle 
+ */
 tagMouseUp = function(e){
   if(isDrawTagging) {
     var tag = prompt("Please enter tag name");
@@ -321,6 +338,17 @@ tagMouseUp = function(e){
   }
  }
 
+
+ /**
+ * Creating new drawing when mouse over
+ * 
+ * @function tagDraw
+ * @param {float} x - mouse x coordinate
+ * @param {float} y - mouse y coordinate
+ * @param {float} w - rectangle width
+ * @param {float} h - rectangle height
+ * @returns 
+ */
 function tagDraw(x, y, w, h) {
   if (!w || !h){
 		return;
@@ -335,7 +363,17 @@ function tagDraw(x, y, w, h) {
   context.strokeRect(x, y, w, h);
 }
 
-
+/**
+ * Creating new drawing when dragging
+ * 
+ * @function dragDraw
+ * @param {float} x - mouse x coordinate
+ * @param {float} y - mouse y coordinate
+ * @param {float} w - rectangle width
+ * @param {float} h - rectangle height
+ * @param {string} tag - name of the tag
+ * @returns 
+ */
 function dragDraw(x, y, w, h, tag) {
 	if (!w || !h){
 		return;
@@ -353,15 +391,14 @@ function dragDraw(x, y, w, h, tag) {
   context.fillText(tag, (x + w) + 5, (y + h) + 20);
 }
 
-function drawBoxes(tags) {
-  if(tags.length > 0) {
-    tags.forEach(function(tag) {
-      tag.draw(context);
-    })
-  }
-}
-
-// Set photo in canvas
+/**
+ * Render image and tags to canvas 
+ * 
+ * @function currentPhotoInCanvas
+ * @param {string} photo - tag name
+ * @param {string} key - indexDB id
+ * @returns 
+ */
 function currentPhotoInCanvas (photo, key) {
   canvas.width = 650;
   canvas.height = 400;
@@ -389,7 +426,7 @@ function currentPhotoInCanvas (photo, key) {
           renderTagListItem(tag.tag, key, index, null);
         });
 
-        drawBoxes(boxes);
+        drawTags(boxes);
       }
     })
 
@@ -402,7 +439,13 @@ function currentPhotoInCanvas (photo, key) {
   canvas.setAttribute("key", key);
 }
 
-// render list of tags
+/**
+ * Wrapper for tag items
+ * 
+ * @function renderTaglist
+ * @param
+ * @returns 
+ */
 function renderTaglist() {
   elementTags.innerHTML = "";
 
@@ -415,7 +458,16 @@ function renderTaglist() {
   }
 }
 
-// render items in a list of tags
+/**
+ * Render items on the tag element 
+ * 
+ * @function renderTagListItem
+ * @param {string} name - tag name
+ * @param {string} key - indexDB id
+ * @param {index} index - index for removeTag function
+ * @param {int} activeTagIndex - set active class if not null
+ * @returns 
+ */
 function renderTagListItem(name, key, index=null, activeTagIndex=null) {
   return elementTags.innerHTML += `
     <div key="${key}" class="tag-item ${activeTagIndex === index ? 'active' : ''}"> 
@@ -424,6 +476,13 @@ function renderTagListItem(name, key, index=null, activeTagIndex=null) {
     </div>`;
 }
 
+/**
+ * Set image in canvas
+ * 
+ * @function removeTag
+ * @param {int} index - index of image to be remove
+ * @returns 
+ */
 function removeTag(index) {
   // remove
   store.splice(index,1);
@@ -438,9 +497,32 @@ function removeTag(index) {
   renderElementsInCanvas();
 }
 
+/**
+ * Set image in canvas
+ * Render tags
+ * 
+ * @function renderElementsInCanvas
+ * @param
+ * @returns 
+ */
 function renderElementsInCanvas() {
   context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
-  drawBoxes(boxes);
+  drawTags(boxes);
+}
+
+/**
+ * Draw all the tags from indexDB
+ * 
+ * @function drawTags
+ * @param {array} tags - list of TagBox
+ * @returns 
+ */
+function drawTags(tags) {
+  if(tags.length > 0) {
+    tags.forEach(function(tag) {
+      tag.draw(context);
+    })
+  }
 }
 
 
