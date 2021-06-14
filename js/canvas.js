@@ -137,13 +137,13 @@ tagMouseMove = function(e){
       context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
       context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
       activeTagIndex = null;
-      renderTagsInHtml(); // @TODO: revisit code, problem: will rerender once mouse is hovering the canvas
+      renderTaglist(); // @TODO: revisit code, problem: will rerender once mouse is hovering the canvas
 
       for (var i = 0; i < boxes.length; i++) {
         if (boxes[i].isPointInside(mx, my)) {
           activeTagIndex = i;
           boxes[i].highlight();
-          renderTagsInHtml();
+          renderTaglist();
         } else {
           boxes[i].redraw();
         }
@@ -226,7 +226,6 @@ tagMouseUp = function(e){
     isDragging = false;
   }
  }
-
 
 function tagDraw(x, y, w, h) {
 
@@ -315,7 +314,7 @@ function currentPhotoInCanvas (photo, key) {
   canvas.setAttribute("key", key);
 }
 
-function renderTagsInHtml() {
+function renderTaglist() {
   elementTags.innerHTML = "";
 
   store.forEach(function(tag, index) {
@@ -334,7 +333,7 @@ function removeTag(index) {
 
   // re-render tags
   db.collection('photos').doc(currentKey).update({ tags: store }).then(function(response) {
-    renderTagsInHtml();
+    renderTaglist();
   });
 
   // draw boxes and image again
