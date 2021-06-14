@@ -14,7 +14,7 @@ function TagBox() {
 
 // Methods on the Box class
 TagBox.prototype = {
-	draw: function(context, fill="#444444", isFilled=false) {
+	draw: function(context, fill="#444444") {
 		context.strokeStyle = fill;
     context.strokeRect(this.x,this.y,this.w,this.h);
     context.font = "8pt Arial";
@@ -33,7 +33,6 @@ TagBox.prototype = {
   highlight: function (x, y) {
       this.x = x || this.x;
       this.y = y || this.y;
-      context.cursor = "col-resize";
       this.draw(context, "rgb(67, 155, 249)");
       return (this);
   }
@@ -55,7 +54,7 @@ function addTag(x, y, w, h, tag, isNew=true) {
   
   if(isNew) {
     store.push({"x": x,"y": y,"w": w, "h": h, "tag":tag});
-    renderTagsToTHtml(tag, currentKey, store.length - 1);
+    renderTagListItem(tag, currentKey, store.length - 1);
     db.collection('photos').doc(currentKey).update({ tags: store });
   }
 }
@@ -134,7 +133,7 @@ tagMouseMove = function(e){
   if(!isDragging) {
     // Highlight tag shape and list
     if(boxes.length > 0) {
-      context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
+      
       context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
       activeTagIndex = null;
       renderTaglist(); // @TODO: revisit code, problem: will rerender once mouse is hovering the canvas
@@ -206,7 +205,7 @@ tagMouseUp = function(e){
 				addTag (rectX, rectY, rectW, rectH, tag);
 			}
 
-      context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
+      
       context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
       drawBoxes(boxes);
 
@@ -219,7 +218,7 @@ tagMouseUp = function(e){
       updateTag (xDrag, yDrag, wDrag, hDrag, tagDrag);
     }
 
-    context.clearRect(0, 0, imageCanvasWidth, imageCanvasHeight);
+    
     context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
     drawBoxes(boxes);
 
@@ -229,7 +228,7 @@ tagMouseUp = function(e){
 
 function tagDraw(x, y, w, h) {
 
-	context.clearRect(0, 0, canvas.width, canvas.height);
+	
 	context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
   drawBoxes(boxes);
 
@@ -247,7 +246,7 @@ function tagDraw(x, y, w, h) {
 
 function dragDraw(x, y, w, h, tag) {
 
-	context.clearRect(0, 0, canvas.width, canvas.height);
+	
 	context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
   drawBoxes(boxes);
 
@@ -298,7 +297,7 @@ function currentPhotoInCanvas (photo, key) {
         photo.tags.forEach(function(tag, index) {
           addTag(tag.x, tag.y, tag.w, tag.h, tag.tag, false);
           store.push(tag);
-          renderTagsToTHtml(tag.tag, key, index, null);
+          renderTagListItem(tag.tag, key, index, null);
         });
 
         drawBoxes(boxes);
@@ -314,16 +313,26 @@ function currentPhotoInCanvas (photo, key) {
   canvas.setAttribute("key", key);
 }
 
+// render list of tags
 function renderTaglist() {
   elementTags.innerHTML = "";
 
   store.forEach(function(tag, index) {
-    renderTagsToTHtml(tag.tag, currentKey, index, activeTagIndex);
+    renderTagListItem(tag.tag, currentKey, index, activeTagIndex);
   });
 
   if(activeTagIndex !== null) {
     elementTags.innerHTML += "<div class='infoTag'><b>Tips:</b> Select and hold the mouse key inside the tag shape and drag it to new location.</div>"
   }
+}
+
+// render items in a list of tags
+function renderTagListItem(name, key, index=null, activeTagIndex=null) {
+  return elementTags.innerHTML += `
+    <div key="${key}" class="tag-item ${activeTagIndex === index ? 'active' : ''}"> 
+      <span>${name}</span> 
+      <button onClick="removeTag(${index})" >x</button>
+    </div>`;
 }
 
 function removeTag(index) {
@@ -340,6 +349,8 @@ function removeTag(index) {
   context.drawImage(canvasImage, 0, 0, imageCanvasWidth, imageCanvasHeight);
   drawBoxes(boxes);
 }
+
+
 
 
 

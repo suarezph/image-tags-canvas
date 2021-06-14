@@ -46,13 +46,4 @@ const showButtons = () => document.querySelector(".button-options").style.displa
 // Render image to thumbnails
 const renderImageToThumbnails = (image, key, index=null)  => elementThumbnails.innerHTML += `<img src="${image}"  key="${key}" onClick="setPhotoByIndex(${index})"  />`;
 
-// Render names to tags element
-const renderTagsToTHtml = (name, key, index=null, activeTagIndex=null) => {
-  return elementTags.innerHTML += `
-    <div key="${key}" class="tag-item ${activeTagIndex === index ? 'active' : ''}"> 
-      <span>${name}</span> 
-      <button onClick="removeTag(${index})" >x</button>
-    </div>`;
-}
-
 
