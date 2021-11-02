@@ -43,8 +43,14 @@
 ### Test Framework
 1. https://jestjs.io/
 
+
+### Github Actions
+1. https://docs.github.com/en/actions/guides/building-and-testing-nodejs
+2. https://docs.github.com/en/github/administering-a-repository/defining-the-mergeability-of-pull-requests/managing-a-branch-protection-rule
+
 ### Docs
 1. https://jsdoc.app/index.html
+
 
 # TODO
 1. Implement IIFE(Immediately Invoked Function Expression) and "use strict"; so all the initialise variable willl be turn local and will not be available globally
